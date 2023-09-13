@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: db
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_DB=djdb
+      - POSTGRES_PASSWORD=ndd$5DH%623^&67326^hfd_^&r64*jd44
+    volumes:
+      - pgdata1:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d djdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: on-failure
+
+  backend:
+    container_name: backend
+    build: ./Digital-School72_backend
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+      
+volumes:
+  pgdata1: {}
