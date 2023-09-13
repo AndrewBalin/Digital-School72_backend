@@ -5,8 +5,8 @@ from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
-# import jwt
-# from jwt import *
+import jwt
+from jwt import *
 
 
 class UserManager(BaseUserManager):
@@ -69,9 +69,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    # @property
-    # def token(self):
-    #     return self._generate_jwt_name()
+    @property
+    def token(self):
+        return self._generate_jwt_name()
 
     def get_short_name(self):
         return self.username
@@ -79,19 +79,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return self.username
 
-    # def _generate_jwt_name(self):
-    #     dt = datetime.now() + timedelta(days=60)
-    #     payload = {
-    #         'id': self.pk,
-    #         'exp': dt
-    #     }
-    #     token = jwt.encode(
-    #         payload,
-    #         settings.SECRET_KEY,
-    #         algorithm='HS256'
-    #     )
-    #
-    #     return token
+    def _generate_jwt_name(self):
+        dt = datetime.now() + timedelta(days=60)
+        payload = {
+            'id': self.pk,
+            'exp': dt
+        }
+        token = jwt.encode(
+            payload,
+            settings.SECRET_KEY,
+            algorithm='HS256'
+        )
+    
+        return token
 
 
 class School(models.Model):

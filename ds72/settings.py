@@ -21,12 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-j@%eemj$%eu)6tcr*-*(&i!l%b%_&gs0i_1%@$5j7056u7sw5*'
-
+FERNET_ENCODE_KEY = b'ryeCFeoNJppBrLc3thhKpxjwoxeGlzyLXFdlIFDaWu0='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "car.pet.pydj@yandex.ru"
+EMAIL_HOST_PASSWORD = "makstr78"
+SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 
 # Application definition
 
@@ -39,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'jwt'
 ]
 
 MIDDLEWARE = [

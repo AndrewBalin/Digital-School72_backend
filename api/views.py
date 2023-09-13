@@ -3,7 +3,16 @@ from django.contrib.auth.hashers import check_password
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest.framework.parsers import JSONParser
+from datetime import datetime, timedelta
+import jwt
 
+from ds72.settings import (
+    SECRET_KEY, 
+    FERNET_ENCODE_KEY, 
+    EMAIL_HOST_USER,
+)
+from ds72.fernet import *
 from api.models import SchoolClass, User
 from api.serializers import SchoolClassSerializer, UserSerializer
 
@@ -22,9 +31,24 @@ def class_data(request, id):
 def login(request, username, password):
     if request.method == 'GET':
         user = None
-        if '@' in username:
-            user = get_user_model().objects.get(email=username)
-        else:
-            user = get_user_model().objects.get(username=username)
+        try:
+            if '@' in username:
+                user = User.objects.get(email=username)
+            else:
+                user = User.objects.get(username=username)
+        except:
+            return JsonResponse("wrong data", status=404, safe=False)
+        
         if check_password(password, user.password):
-            res = JsonResponse()
+            dt = datetime.now() + timedelta(days=30)
+            res = JsonResponse(user.pk, safe=False)
+            res.set_cookie(
+                key="utoken",
+                value=fernet_msg_encode(user.token),
+                expires=int(dt.strftime('%s')),
+            )
+            user.is_active = True
+            user.save()
+            return res
+        else:
+            return JsonResponse("wrong data", status=404, safe=False)
