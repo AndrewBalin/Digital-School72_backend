@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest.framework.parsers import JSONParser
+from ds72.decorators import login_jwt_required
 from datetime import datetime, timedelta
 import jwt
 
@@ -17,7 +18,7 @@ from api.models import SchoolClass, User
 from api.serializers import SchoolClassSerializer, UserSerializer
 
 
-# Create your views here.
+@login_jwt_required
 def class_data(request, id):
     try:
         schoolclass = SchoolClass.objects.get(id=id)
@@ -31,14 +32,17 @@ def class_data(request, id):
 def login(request, username, password):
     if request.method == 'GET':
         user = None
-        try:
-            if '@' in username:
+        if '@' in username:
+            try:
                 user = User.objects.get(email=username)
-            else:
+            except user.DoesNotExist:
+                return JsonResponse('wrong data', status=404, safe=False)
+        else:
+            try:
                 user = User.objects.get(username=username)
-        except:
-            return JsonResponse("wrong data", status=404, safe=False)
-        
+            except user.DoesNotExist:
+                return JsonResponse('wrong data', status=404, safe=False)
+            
         if check_password(password, user.password):
             dt = datetime.now() + timedelta(days=30)
             res = JsonResponse(user.pk, safe=False)
