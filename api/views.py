@@ -77,7 +77,7 @@ def login(request):
             return JsonResponse("wrong data", status=404, safe=False)
         
 
-def registration(request):
+def register_send_mail(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = UserSerializer(data=data)
