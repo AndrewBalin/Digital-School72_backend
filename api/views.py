@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from ds72.decorators import login_jwt_required
 from datetime import datetime, timedelta
+import django.middleware.csrf as csrf
 import jwt
 
 from ds72.settings import (
@@ -86,7 +87,7 @@ def register_send_mail(request):
             exist_user = User.objects.get(username=serializer.data['username'])
             return JsonResponse("this user already exist")
         
-        except exist_email.DoesNotExist or exist_user.DoesNotExist:
+        except exist_email.DoesNotExist or exist_user.DoesNotExist:  # TODO мне кажется здесь надо User.DoesNotExist
             if serializer.is_valid():
                 token = login_jwt_required(
                     username=serializer.data['username'],
@@ -128,3 +129,7 @@ def register_final_verify(request, token):
 
         except:
             return JsonResponse('oops, an occured error', status=500, safe=False)
+
+
+def get_csrf_token_view(request):
+    return HttpResponse(csrf.get_token(request))
