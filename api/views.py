@@ -37,7 +37,7 @@ def jwt_verify_encode(username: str, email: str, password: str) -> str:
     return token
 
 @login_jwt_required
-def class_data(request, id):
+def get_class_data(request, id):
     try:
         schoolclass = SchoolClass.objects.get(id=id)
     except SchoolClass.DoesNotExist:
