@@ -19,8 +19,11 @@ from ds72.fernet import *
 from api.models import SchoolClass, User
 from api.serializers import SchoolClassSerializer, UserSerializer
 
+JWT_LOGIN_DT = datetime.now() + timedelta(days=30)
+DATETIME_COOKIE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+
 def jwt_verify_encode(username: str, email: str, password: str) -> str:
-    dt = datetime.now() + timedelta(days=30)
+    dt = datetime.now() + timedelta(days=1)
     payload = {
         'email': str(email),
         'username': str(username),
@@ -51,6 +54,7 @@ def login(request):
     if request.method == 'GET':
         data = JSONParser().parse(request)
         username = data["email"] #need to test it !!
+        dt = JWT_LOGIN_DT
         user = None
         if '@' in username:
             try:
@@ -64,12 +68,12 @@ def login(request):
                 return JsonResponse('wrong data', status=404, safe=False)
             
         if check_password(password, user.password):
-            dt = datetime.now() + timedelta(days=30)
+            
             res = JsonResponse(fernet_msg_encode(user.token), safe=False)
             res.set_cookie(
                 key="utoken",
                 value=fernet_msg_encode(user.token),
-                expires=int(dt.strftime('%s')),
+                expires=int(dt.strftime(DATETIME_COOKIE_FORMAT)),
             )
             user.is_active = True
             user.save()
@@ -121,15 +125,30 @@ def register_final_verify(request, token):
                 return JsonResponse('user already exist', status=400, safe=False)
             
             except exist_email.DoesNotExist or exist_username.DoesNotExist:
-                pass # make token and set it in cookie, return some response
+                # make token and set it in cookie, return some response
+                new_user = User.objects.create_user(
+                    username=decoded_data['username'],
+                    email=decoded_data['email'],
+                    password=decoded_data['password']
+                )
 
+                res = JsonResponse(f"{new_user.pk}")
+                res.set_cookie(
+                    key='utoken',
+                    value=fernet_msg_encode(new_user.token),
+                    expires=int(JWT_LOGIN_DT.strftime(DATETIME_COOKIE_FORMAT)),
+                )
+
+                new_user.is_active = True
+                new_user.save()
+
+                return res
 
         except jwt.ExpiredSignatureError:
-            return JsonResponse('verify token timed out', status=400, safe=False)
+            return JsonResponse('verify token timed out', status=401, safe=False)
 
         except:
             return JsonResponse('oops, an occured error', status=500, safe=False)
-
 
 def get_csrf_token_view(request):
     return HttpResponse(csrf.get_token(request))
