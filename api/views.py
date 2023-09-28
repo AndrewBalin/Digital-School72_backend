@@ -9,6 +9,7 @@ from ds72.decorators import login_jwt_required
 from datetime import datetime, timedelta
 import django.middleware.csrf as csrf
 import jwt
+import re
 
 from ds72.settings import (
     SECRET_KEY, 
@@ -50,13 +51,13 @@ def get_class_data(request, id):
         serializer = SchoolClassSerializer(schoolclass)
         return JsonResponse(serializer.data)
 
-def login(request):
-    if request.method == 'GET':
+def login(request): # Андрей: седелал изменения в функции #need to test it !!
+    if request.method == 'POST': # <- `get` to `post`
         data = JSONParser().parse(request)
-        username = data["email"] #need to test it !!
+        username = data["username"] # <- `email` to `username`
         dt = JWT_LOGIN_DT
         user = None
-        if '@' in username:
+        if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', username) is not None: # <- `@ in` to `regex`
             try:
                 user = User.objects.get(email=username)
             except user.DoesNotExist:
