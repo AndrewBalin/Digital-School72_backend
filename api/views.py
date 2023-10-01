@@ -61,14 +61,14 @@ def login(request): # Андрей: седелал изменения в фун�
             try:
                 user = User.objects.get(email=username)
             except user.DoesNotExist:
-                return JsonResponse('wrong data', status=404, safe=False)
+                return JsonResponse('wrong login data', status=400, safe=False)
         else:
             try:
                 user = User.objects.get(username=username)
             except user.DoesNotExist:
-                return JsonResponse('wrong data', status=404, safe=False)
+                return JsonResponse('wrong login data', status=400, safe=False)
             
-        if check_password(password, user.password):
+        if check_password(data['password'], user.password):
             
             res = JsonResponse(fernet_msg_encode(user.token), safe=False)
             res.set_cookie(
@@ -80,7 +80,7 @@ def login(request): # Андрей: седелал изменения в фун�
             user.save()
             return res
         else:
-            return JsonResponse("wrong data", status=404, safe=False)
+            return JsonResponse("wrong login data", status=400, safe=False)
         
 
 def register_send_mail(request):
