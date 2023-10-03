@@ -151,5 +151,47 @@ def register_final_verify(request, token):
         except:
             return JsonResponse('oops, an occured error', status=500, safe=False)
 
+@login_jwt_required
+def get_user_profile(request, id):
+    if request.method == "GET":
+        try:
+            user = User.objects.get(pk=id)
+            serializer = UserSerializer(user)
+            return JsonResponse(serializer.data)
+        
+        except user.DoesNotExist:
+            return JsonResponse('user does not exist', safe=False, status=404)
+
+@login_jwt_required
+def get_user_name(request, id):
+    if request.method == "GET":
+        try:
+            user = User.objects.get(pk=id)
+            data = {
+                "id": f"{user.pk}", 
+                "username": user.username,
+                "name": user.name,
+                "surname": user.surname,
+                "patronymic": user.patronymic,
+                "role": user.role
+            }
+
+            return JsonResponse(data, safe=False)
+
+        except user.DoesNotExist:
+            return JsonResponse('user does not exist', status=404, safe=False)
+
+@login_jwt_required
+def get_user_email(request, id):
+    if request.method == "GET":
+        try:
+            user = User.objects.get(pk=id)
+            serializer = UserSerializer(user)
+            
+            return JsonResponse(serializer.data["email"], safe=False)
+        
+        except user.DoesNotExist:
+            return JsonResponse('user does not exist', status=404, safe=False)
+
 def get_csrf_token_view(request):
     return HttpResponse(csrf.get_token(request))
