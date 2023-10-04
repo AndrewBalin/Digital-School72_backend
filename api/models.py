@@ -118,7 +118,7 @@ class School(models.Model):
 
 
 class SchoolClass(models.Model):
-    teacher = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
+    teacher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
     letter = models.CharField(max_length=1)
     number = models.IntegerField()
-    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True)
