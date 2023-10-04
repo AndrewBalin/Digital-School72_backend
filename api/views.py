@@ -12,16 +12,20 @@ import jwt
 import re
 
 from ds72.settings import (
-    SECRET_KEY, 
-    FERNET_ENCODE_KEY, 
+    SECRET_KEY,
+    FERNET_ENCODE_KEY,
     EMAIL_HOST_USER,
 )
 from ds72.fernet import *
 from api.models import SchoolClass, User
 from api.serializers import SchoolClassSerializer, UserSerializer
 
-JWT_LOGIN_DT = datetime.now() + timedelta(days=30)
 DATETIME_COOKIE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
+
+TOKEN_EXPIRY_TIME_DAYS = 30
+
+def get_jwt_expiry_date():
+    return datetime.now() + timedelta(days=TOKEN_EXPIRY_TIME_DAYS)
 
 def jwt_verify_encode(username: str, email: str, password: str) -> str:
     dt = datetime.now() + timedelta(days=1)
@@ -52,12 +56,14 @@ def get_class_data(request, id):
         return JsonResponse(serializer.data)
 
 def login(request): # Андрей: седелал изменения в функции #need to test it !!
-    if request.method == 'POST': # <- `get` to `post`
+    if request.method == 'POST':  # <- `get` to `post`
         data = JSONParser().parse(request)
-        username = data["username"] # <- `email` to `username`
-        dt = JWT_LOGIN_DT
+        username = data["username"]  # <- `email` to `username`
+        password = data["password"]
+        dt = get_jwt_expiry_date()  # when the token will expire
         user = None
-        if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', username) is not None: # <- `@ in` to `regex`
+        # check if login by email
+        if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', username) is not None:
             try:
                 user = User.objects.get(email=username)
             except user.DoesNotExist:
@@ -66,10 +72,9 @@ def login(request): # Андрей: седелал изменения в фун�
             try:
                 user = User.objects.get(username=username)
             except user.DoesNotExist:
-                return JsonResponse('wrong login data', status=400, safe=False)
-            
-        if check_password(data['password'], user.password):
-            
+                return JsonResponse('wrong login data', status=404, safe=False)
+
+        if check_password(password, user.password):
             res = JsonResponse(fernet_msg_encode(user.token), safe=False)
             res.set_cookie(
                 key="utoken",
@@ -94,21 +99,21 @@ def register_send_mail(request):
         
         except exist_email.DoesNotExist or exist_user.DoesNotExist:  # TODO мне кажется здесь надо User.DoesNotExist
             if serializer.is_valid():
-                token = login_jwt_required(
+                token = jwt_verify_encode(
                     username=serializer.data['username'],
                     email=serializer.data['email'],
                     password=serializer.data['password']
                 )
 
-                try: #rewrite auth url redirect
+                try:  # TODO: rewrite auth url redirect
                     send_mail(
                         'email verification',
                         f'click to verify email http://127.0.0.1:8000/authc/verify/{token}',
                         EMAIL_HOST_USER,
                         [serializer.data['email']],
                     )
-                    return  JsonResponse('message was succ send', safe=False)
-                
+                    return JsonResponse('message was succ send', safe=False)
+
                 except:
                     JsonResponse('oops, an occured error', status=500, safe=False)
 
@@ -116,6 +121,7 @@ def register_send_mail(request):
 
 def register_final_verify(request, token):
     if request.method == 'GET':
+        JWT_LOGIN_DT = get_jwt_expiry_date()
         try:
             decrypted_token = fernet_msg_decode(token)
             decoded_data = jwt.decode(decrypted_token, SECRET_KEY, algorithms=['HS256'])
@@ -158,7 +164,7 @@ def get_user_profile(request, id):
             user = User.objects.get(pk=id)
             serializer = UserSerializer(user)
             return JsonResponse(serializer.data)
-        
+
         except user.DoesNotExist:
             return JsonResponse('user does not exist', safe=False, status=404)
 
@@ -168,7 +174,7 @@ def get_user_name(request, id):
         try:
             user = User.objects.get(pk=id)
             data = {
-                "id": f"{user.pk}", 
+                "id": f"{user.pk}",
                 "username": user.username,
                 "name": user.name,
                 "surname": user.surname,
@@ -187,9 +193,9 @@ def get_user_email(request, id):
         try:
             user = User.objects.get(pk=id)
             serializer = UserSerializer(user)
-            
+
             return JsonResponse(serializer.data["email"], safe=False)
-        
+
         except user.DoesNotExist:
             return JsonResponse('user does not exist', status=404, safe=False)
 
