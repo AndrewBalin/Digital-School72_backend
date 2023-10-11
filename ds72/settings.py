@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j@%eemj$%eu)6tcr*-*(&i!l%b%_&gs0i_1%@$5j7056u7sw5*'
 FERNET_ENCODE_KEY = b'ryeCFeoNJppBrLc3thhKpxjwoxeGlzyLXFdlIFDaWu0='
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    '*',
 ]
 
 ALLOWED_HOSTS = ["*"]
