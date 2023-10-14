@@ -7,5 +7,7 @@ urlpatterns = [
     path('get_csrf_token', views.get_csrf_token_view),
     path('get_user_name/<int:id>', views.get_user_name),
     path('get_user_email/<int:id>', views.get_user_email),
-    path('get_user/<int:id>', views.get_user_profile)
+    path('get_user/<int:id>', views.get_user_profile),
+    path('register_send_mail', views.register_send_mail),
+    path('register_final_verify', views.register_final_verify)
 ]
