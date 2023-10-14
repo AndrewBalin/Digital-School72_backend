@@ -25,10 +25,8 @@ FERNET_ENCODE_KEY = b'ryeCFeoNJppBrLc3thhKpxjwoxeGlzyLXFdlIFDaWu0='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-CORS_ALLOWED_ORIGINS = [
-    '*',
-]
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ["*"]
 
 EMAIL_HOST = 'smtp.yandex.ru'
