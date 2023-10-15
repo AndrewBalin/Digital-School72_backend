@@ -291,9 +291,11 @@ def get_school_list_by_city(request):
         data = JSONParser().parse(request)
         try:
             schools = School.objects.filter(city_name=data["city"])
-            return JsonResponse(schools, safe=False)
-        except Exception as e:
-            print(e)
+            res = []
+            for i in schools:
+                res.append(i.name)
+            return JsonResponse(res, safe=False)
+        except:
             return JsonResponse("no one schools detected with this city", safe=False, status=404)
 
 @csrf_exempt
