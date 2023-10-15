@@ -125,8 +125,13 @@ def register_send_mail(request):
 def register_final_verify(request, token):
     if request.method == 'GET':
         JWT_LOGIN_DT = get_jwt_expiry_date()
-        decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        if User.objects.filter(email=decoded_data['email']).exists() and User.objects.filter(username=decoded_data['email']).exists():
+        try:
+            decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return JsonResponse('verify token timed out', status=401, safe=False)
+        email_exist = User.objects.filter(username=decoded_data['email'])
+        username_exist = User.objects.filter(email=decoded_data['email'])
+        if len(username_exist) != 0 or len(email_exist) != 0:
             return JsonResponse('user already exist', status=400, safe=False)
         else:        
         # make token and set it in cookie, return some response
@@ -149,12 +154,7 @@ def register_final_verify(request, token):
             new_user.save()
 
             return res
-
-        # except jwt.ExpiredSignatureError:
-        #     return JsonResponse('verify token timed out', status=401, safe=False)
-
-        # except:
-        #     return JsonResponse(f'oops, an occured error', status=500, safe=False)
+        
 
 @login_jwt_required
 def get_user_profile(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
