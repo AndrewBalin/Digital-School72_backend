@@ -310,3 +310,4 @@ def check_username_or_email(request):
                 return JsonResponse("user detected with this username", safe=False)
             except:
                 return JsonResponse("no one user detected with this username", safe=False, status=404)
+            
