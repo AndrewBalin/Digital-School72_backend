@@ -284,6 +284,7 @@ def get_school(request, id):
         except:
             return JsonResponse("school does not exists", status=404, safe=False)
 
+@csrf_exempt
 def get_school_list_by_city(request):
     if request.method == "POST":
         data = JSONParser().parse(request)
