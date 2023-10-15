@@ -230,13 +230,14 @@ def add_student_to_class(request):  # TODO: проверка на права д�
         except SchoolClass.DoesNotExist:
             return JsonResponse('teacher does not exit', status=404, safe=False)
 
-
+@csrf_exempt
 def get_cities(request):
     res = []
     for i in City.objects.all():
         res.append(i.name)
     return JsonResponse(res, status=200, safe=False)  # TODO: ПРОВЕРИТЬ
 
+@csrf_exempt
 @login_jwt_required
 def add_city(request):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
     if request.method == 'POST':
