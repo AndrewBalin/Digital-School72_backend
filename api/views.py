@@ -68,12 +68,12 @@ def login(request): # Андрей: седелал изменения в фун�
         if re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', username) is not None:
             try:
                 user = User.objects.get(email=username)
-            except user.DoesNotExist:
+            except:
                 return JsonResponse('wrong login data', status=400, safe=False)
         else:
             try:
                 user = User.objects.get(username=username)
-            except user.DoesNotExist:
+            except:
                 return JsonResponse('wrong login data', status=404, safe=False)
 
         if check_password(password, user.password):
