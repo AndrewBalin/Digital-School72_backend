@@ -124,40 +124,40 @@ def register_send_mail(request):
 
 def register_final_verify(request, token):
     if request.method == 'GET':
-        JWT_LOGIN_DT = get_jwt_expiry_date()
-        decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         try:
-            exist_email = User.objects.get(email=decoded_data['email'])
-            exist_username = User.objects.get(username=decoded_data['email'])
-            return JsonResponse('user already exist', status=400, safe=False)
-        except User.DoesNotExist:
-            # make token and set it in cookie, return some response
-            new_user = User.objects.create_user(
-                username=decoded_data['username'],
-                email=decoded_data['email'],
-                password=decoded_data['password'],
-                surname='',
-                patronymic='',
-                role_code='0'
-            )
-            res = JsonResponse(f"{new_user.pk}", safe=False)
-            res.set_cookie(
-                key='utoken',
-                value=fernet_msg_encode(new_user.token),
-                expires=int(JWT_LOGIN_DT.strftime(DATETIME_COOKIE_FORMAT)),
-            )
+            JWT_LOGIN_DT = get_jwt_expiry_date()
+            decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            try:
+                exist_email = User.objects.get(email=decoded_data['email'])
+                exist_username = User.objects.get(username=decoded_data['email'])
+                return JsonResponse('user already exist', status=400, safe=False)
+            except User.DoesNotExist:
+                # make token and set it in cookie, return some response
+                new_user = User.objects.create_user(
+                    username=decoded_data['username'],
+                    email=decoded_data['email'],
+                    password=decoded_data['password'],
+                    surname='',
+                    patronymic='',
+                    role_code='0'
+                )
+                res = JsonResponse(f"{new_user.pk}", safe=False)
+                res.set_cookie(
+                    key='utoken',
+                    value=fernet_msg_encode(new_user.token),
+                    expires=int(JWT_LOGIN_DT.strftime(DATETIME_COOKIE_FORMAT)),
+                )
 
-            new_user.is_active = True
-            new_user.save()
+                new_user.is_active = True
+                new_user.save()
 
-            return res
+                return res
 
-        # except jwt.ExpiredSignatureError:
-        #     return JsonResponse('verify token timed out', status=401, safe=False)
+        except jwt.ExpiredSignatureError:
+            return JsonResponse('verify token timed out', status=401, safe=False)
 
-        # except Exception as e:
-        #     print(e)
-        #     return JsonResponse(f'oops, an occured error {e}', status=500, safe=False)
+        except:
+            return JsonResponse(f'oops, an occured error', status=500, safe=False)
 
 @login_jwt_required
 def get_user_profile(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
