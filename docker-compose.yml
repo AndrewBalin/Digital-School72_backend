@@ -28,4 +28,4 @@ services:
       - db
       
 volumes:
-  pgdata2: {}
+  pgdata1: {}
