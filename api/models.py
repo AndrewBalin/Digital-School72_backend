@@ -117,6 +117,7 @@ class City(models.Model):
 
 class School(models.Model):
     name = models.CharField(max_length=255)
+    city_name = models.CharField(max_length=255)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
 
 

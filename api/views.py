@@ -290,8 +290,7 @@ def get_school_list_by_city(request):
     if request.method == "POST":
         data = JSONParser().parse(request)
         try:
-            city = City.objects.get(city=data["city"])
-            schools = School.objects.filter(city=city)
+            schools = School.objects.filter(city_name=data["city"])
             return JsonResponse(schools, safe=False)
         except:
             return JsonResponse("no one schools detected with this city", safe=False, status=404)
@@ -316,5 +315,5 @@ def check_username_or_email(request):
 def test_make_city_school(request):
     if request.method == "GET":
         new_city = City.objects.create(name="тюмень")
-        new_school = School.objects.create(name="Digital School 72", city=new_city)
+        new_school = School.objects.create(name="Digital School 72", city=new_city, city_name=new_city.name)
         return JsonResponse('succ', safe=False)
