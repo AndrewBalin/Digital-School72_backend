@@ -111,7 +111,7 @@ def register_send_mail(request):
                 try:  # TODO: rewrite auth url redirect
                     send_mail(
                         'email verification',
-                        f'click to verify email http://127.0.0.1:8000/authc/verify/{token}',
+                        f'click to verify email http://digital-school72.ru/email_confirm?token={token}',
                         EMAIL_HOST_USER,
                         [serializer.data['email']],
                     )
