@@ -291,7 +291,7 @@ def get_school_list_by_city(request):
         data = JSONParser().parse(request)
         try:
             city = City.objects.get(city=data["city"])
-            schools = School.objects.filter(city)
+            schools = School.objects.filter(city=city)
             return JsonResponse(schools, safe=False)
         except:
             return JsonResponse("no one schools detected with this city", safe=False, status=404)
