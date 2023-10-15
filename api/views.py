@@ -134,7 +134,8 @@ def register_final_verify(request, token):
                 exist_username = User.objects.get(username=decoded_data['email'])
                 return JsonResponse('user already exist', status=400, safe=False)
             
-            except:
+            except Exception as e:
+                print(e)
                 # make token and set it in cookie, return some response
                 new_user = User.objects.create_user(
                     username=decoded_data['username'],
@@ -157,7 +158,8 @@ def register_final_verify(request, token):
         except jwt.ExpiredSignatureError:
             return JsonResponse('verify token timed out', status=401, safe=False)
 
-        except:
+        except Exception as e:
+            print(e)
             return JsonResponse('oops, an occured error', status=500, safe=False)
 
 @login_jwt_required
