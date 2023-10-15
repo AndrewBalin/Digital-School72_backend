@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.core.mail import send_mail
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
-from ds72.decorators import login_jwt_required
+from ds72.decorators import login_jwt_required, is_platform_admin, is_school_admin
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 import django.middleware.csrf as csrf
@@ -18,7 +18,7 @@ from ds72.settings import (
     EMAIL_HOST_USER,
 )
 from ds72.fernet import *
-from api.models import SchoolClass, User
+from api.models import SchoolClass, User, School, City
 from api.serializers import SchoolClassSerializer, UserSerializer
 
 DATETIME_COOKIE_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -161,18 +161,18 @@ def register_final_verify(request, token):
             return JsonResponse('oops, an occured error', status=500, safe=False)
 
 @login_jwt_required
-def get_user_profile(request, id):
+def get_user_profile(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
     if request.method == "GET":
         try:
             user = User.objects.get(pk=id)
             serializer = UserSerializer(user)
             return JsonResponse(serializer.data)
 
-        except user.DoesNotExist:
+        except:
             return JsonResponse('user does not exist', safe=False, status=404)
 
 @login_jwt_required
-def get_user_name(request, id):
+def get_user_name(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
     if request.method == "GET":
         try:
             user = User.objects.get(pk=id)
@@ -187,11 +187,11 @@ def get_user_name(request, id):
 
             return JsonResponse(data, safe=False)
 
-        except user.DoesNotExist:
+        except:
             return JsonResponse('user does not exist', status=404, safe=False)
 
 @login_jwt_required
-def get_user_email(request, id):
+def get_user_email(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
     if request.method == "GET":
         try:
             user = User.objects.get(pk=id)
@@ -199,19 +199,114 @@ def get_user_email(request, id):
 
             return JsonResponse(serializer.data["email"], safe=False)
 
-        except user.DoesNotExist:
+        except:
             return JsonResponse('user does not exist', status=404, safe=False)
+
+@login_jwt_required
+def add_class(request):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
+    if request.method == "POST":
+        try:
+            post = request.POST
+            teacher_id = post['teacher_id']
+            number = post['number']
+            letter = post['letter']
+            teacher = User.objects.get(id=teacher_id)
+            SchoolClass(teacher=teacher, letter=letter, number=number) # TODO определять из какой школы класс
+            return JsonResponse('success', status=200, safe=False)
+        except User.DoesNotExist:
+            return JsonResponse('teacher does not exit', status=404, safe=False)
+
+@login_jwt_required
+def add_student_to_class(request):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
+    if request.method == "POST":
+        try:
+            post = request.POST
+            class_id = post['class_id']
+            student_id = post['student_id']
+            school_class = SchoolClass.objects.get(id=class_id)
+            student = User.objects.get(id=student_id)
+            student.classes.add(school_class)
+            return JsonResponse('success', status=200, safe=False)
+        except SchoolClass.DoesNotExist:
+            return JsonResponse('teacher does not exit', status=404, safe=False)
+
+
+def get_cities(request):
+    res = []
+    for i in City.objects.all():
+        res.append(i.name)
+    return JsonResponse(res, status=200, safe=False)  # TODO: ПРОВЕРИТЬ
+
+@login_jwt_required
+def add_city(request):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
+    if request.method == 'POST':
+        name = request.POST['name']
+        City(name=name)
+        return JsonResponse('success', status=200)
 
 def get_csrf_token_view(request):
     return HttpResponse(csrf.get_token(request))
 
-@login_jwt_required
-def create_class(request, id):
-    if request.method == "POST":
-        try:
-            user = User.objects.get(pk=id)
-            if user.role == "teacher":
-                data = JSONParser().parse(request)
+# @csrf_exempt
+# @is_school_admin
+# def create_class(request):
+#     if request.method == "POST":
+#         try:
+#             user = User.objects.get(pk=id)
+#             if user.role == "teacher":
+#                 data = JSONParser().parse(request)
 
-        except user.DoesNotExist:
-            pass
+#         except:
+#             pass
+
+@csrf_exempt
+@is_platform_admin
+def create_shcool(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+        try:
+            school = School.objects.get(name=data["name"])
+            return JsonResponse('school already exists', status=403, safe=False)
+        except:
+            try:
+                city = City.objects.create(name=data["city"])
+            except:
+                city = City.objects.get(name=data["city"])
+            new_school = School.objects.create(name=data["name"], city=city)
+            return JsonResponse(f"{new_school.id}", safe=False)
+
+def get_school(request, id):
+    if request.method == "GET":
+        try:
+            school = School.objects.get(pk=id)
+            data = {"id": school.id, "name": school.name, "city": school.city.name}
+            return JsonResponse(data, safe=False)
+        except:
+            return JsonResponse("school does not exists", status=404, safe=False)
+
+def get_school_list_by_city(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+        try:
+            city = City.objects.get(city=data["city"])
+            schools = School.objects.filter(city)
+            return JsonResponse(schools, safe=False)
+        except:
+            return JsonResponse("no one schools detected with this city", safe=False, status=404)
+
+@csrf_exempt
+def check_username_or_email(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+        if "@" in data["username"]:
+            try:
+                user = User.objects.get(email=data["username"])
+                return JsonResponse("user detected with this email", safe=False)
+            except:
+                return JsonResponse("no one user detected with this email", safe=False, status=404)
+        else:
+            try:
+                user = User.objects.get(username=data["username"])
+                return JsonResponse("user detected with this username", safe=False)
+            except:
+                return JsonResponse("no one user detected with this username", safe=False, status=404)

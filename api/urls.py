@@ -9,5 +9,9 @@ urlpatterns = [
     path('get_user_email/<int:id>', views.get_user_email),
     path('get_user/<int:id>', views.get_user_profile),
     path('register_send_mail', views.register_send_mail),
-    path('register_final_verify', views.register_final_verify)
+    path('register_final_verify/<str:token>', views.register_final_verify),
+    path('check_username_or_email', views.check_username_or_email),
+    path('get_school_list_by_city', views.get_school_list_by_city),
+    path('get_school/<int:id>', views.get_school),
+    path('create_school', views.create_shcool),
 ]

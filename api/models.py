@@ -35,7 +35,7 @@ class UserManager(BaseUserManager):
         
         role_code = int(role_code)
         if not(-1 <= role_code <= 3) or role_code is None:
-            raise TypeError('Unknow role code')
+            raise TypeError('Unknown role code')
         role = ROLES[str(role_code)]
 
 
@@ -112,9 +112,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     
         return token
 
+class City(models.Model):
+    name = models.CharField(max_length=255)
 
 class School(models.Model):
     name = models.CharField(max_length=255)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
 
 
 class SchoolClass(models.Model):

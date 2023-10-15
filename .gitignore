@@ -6,3 +6,4 @@ api/migrations
 ds72/__pycache__
 dsadmin/__pycache__
 dsadmin/migrations
+ds72/config.py

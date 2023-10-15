@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import ds72.config as config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j@%eemj$%eu)6tcr*-*(&i!l%b%_&gs0i_1%@$5j7056u7sw5*'
 FERNET_ENCODE_KEY = b'ryeCFeoNJppBrLc3thhKpxjwoxeGlzyLXFdlIFDaWu0='
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+DEBUG = config.DEBUG
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -89,23 +91,23 @@ WSGI_APPLICATION = 'ds72.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'USER': 'root',
-#        'PASSWORD': 'ndd$5DH%623^&67326^hfd_^&r64*jd44',
-#        'NAME': 'djdb',
-#        'PORT': '5432',
-#        'HOST': 'db',
-#    }
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
 # }
+
+DATABASES = {
+   'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'USER': 'root',
+       'PASSWORD': 'ndd$5DH%623^&67326^hfd_^&r64*jd44',
+       'NAME': 'djdb',
+       'PORT': '5432',
+       'HOST': 'db',
+   }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
