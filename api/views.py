@@ -90,6 +90,7 @@ def login(request): # Андрей: седелал изменения в фун�
             return JsonResponse("wrong login data", status=400, safe=False)
         
 
+@csrf_exempt
 def register_send_mail(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
@@ -99,7 +100,7 @@ def register_send_mail(request):
             exist_user = User.objects.get(username=serializer.data['username'])
             return JsonResponse("this user already exist")
         
-        except exist_email.DoesNotExist or exist_user.DoesNotExist:  # TODO мне кажется здесь надо User.DoesNotExist
+        except:  # TODO мне кажется здесь надо User.DoesNotExist
             if serializer.is_valid():
                 token = jwt_verify_encode(
                     username=serializer.data['username'],
@@ -133,7 +134,7 @@ def register_final_verify(request, token):
                 exist_username = User.objects.get(username=decoded_data['email'])
                 return JsonResponse('user already exist', status=400, safe=False)
             
-            except exist_email.DoesNotExist or exist_username.DoesNotExist:
+            except:
                 # make token and set it in cookie, return some response
                 new_user = User.objects.create_user(
                     username=decoded_data['username'],
