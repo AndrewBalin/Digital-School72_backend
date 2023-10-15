@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from ds72.decorators import login_jwt_required
+from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 import django.middleware.csrf as csrf
 import jwt
@@ -55,6 +56,7 @@ def get_class_data(request, id):
         serializer = SchoolClassSerializer(schoolclass)
         return JsonResponse(serializer.data)
 
+@csrf_exempt
 def login(request): # Андрей: седелал изменения в функции #need to test it !!
     if request.method == 'POST':  # <- `get` to `post`
         data = JSONParser().parse(request)
@@ -201,3 +203,14 @@ def get_user_email(request, id):
 
 def get_csrf_token_view(request):
     return HttpResponse(csrf.get_token(request))
+
+@login_jwt_required
+def create_class(request, id):
+    if request.method == "POST":
+        try:
+            user = User.objects.get(pk=id)
+            if user.role == "teacher":
+                data = JSONParser().parse(request)
+
+        except user.DoesNotExist:
+            pass
