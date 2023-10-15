@@ -96,8 +96,8 @@ def register_send_mail(request):
         data = JSONParser().parse(request)
         serializer = UserSerializer(data=data)
         try:
-            exist_email = User.objects.get(email=serializer.data['email'])
-            exist_user = User.objects.get(username=serializer.data['username'])
+            exist_email = User.objects.get(email=data['email'])
+            exist_user = User.objects.get(username=data['username'])
             return JsonResponse("this user already exist")
         
         except:  # TODO мне кажется здесь надо User.DoesNotExist
@@ -105,7 +105,7 @@ def register_send_mail(request):
                 token = jwt_verify_encode(
                     username=serializer.data['username'],
                     email=serializer.data['email'],
-                    password=serializer.data['password']
+                    password=data['password']
                 )
 
                 try:  # TODO: rewrite auth url redirect
