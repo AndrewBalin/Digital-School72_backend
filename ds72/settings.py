@@ -105,7 +105,7 @@ DATABASES = {
        'PASSWORD': 'ndd$5DH%623^&67326^hfd_^&r64*jd44',
        'NAME': 'djdb',
        'PORT': '5432',
-       'HOST': 'db',
+       'HOST': 'postgres_db',
    }
 }
 
