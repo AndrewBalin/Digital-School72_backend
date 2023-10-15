@@ -127,13 +127,10 @@ def register_final_verify(request, token):
         JWT_LOGIN_DT = get_jwt_expiry_date()
         decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         try:
-            print('flag on check is exists')
             exist_email = User.objects.get(email=decoded_data['email'])
             exist_username = User.objects.get(username=decoded_data['email'])
             return JsonResponse('user already exist', status=400, safe=False)
-        
-        except:
-
+        except User.DoesNotExist:
             # make token and set it in cookie, return some response
             new_user = User.objects.create_user(
                 username=decoded_data['username'],
@@ -143,7 +140,7 @@ def register_final_verify(request, token):
                 patronymic='',
                 role_code='0'
             )
-            res = JsonResponse(f"{new_user.pk}")
+            res = JsonResponse(f"{new_user.pk}", safe=False)
             res.set_cookie(
                 key='utoken',
                 value=fernet_msg_encode(new_user.token),
