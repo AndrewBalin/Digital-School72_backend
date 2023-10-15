@@ -128,21 +128,24 @@ def register_final_verify(request, token):
         try:
             decrypted_token = fernet_msg_decode(token)
             decoded_data = jwt.decode(decrypted_token, SECRET_KEY, algorithms=['HS256'])
+            print('flag run')
 
             try:
+                print('flag on check is exists')
                 exist_email = User.objects.get(email=decoded_data['email'])
                 exist_username = User.objects.get(username=decoded_data['email'])
                 return JsonResponse('user already exist', status=400, safe=False)
             
             except Exception as e:
                 print(e)
+                print('flag on create user')
                 # make token and set it in cookie, return some response
                 new_user = User.objects.create_user(
                     username=decoded_data['username'],
                     email=decoded_data['email'],
                     password=decoded_data['password']
                 )
-
+                print('cookie')
                 res = JsonResponse(f"{new_user.pk}")
                 res.set_cookie(
                     key='utoken',
