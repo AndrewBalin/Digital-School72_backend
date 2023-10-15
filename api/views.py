@@ -125,27 +125,21 @@ def register_send_mail(request):
 def register_final_verify(request, token):
     if request.method == 'GET':
         JWT_LOGIN_DT = get_jwt_expiry_date()
-        print(token)
-        decrypted_token = fernet_msg_decode(bytes(token, encoding="UTF8"))
-        decoded_data = jwt.decode(decrypted_token, SECRET_KEY, algorithms=['HS256'])
-        print('flag run')
-
+        decoded_data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         try:
             print('flag on check is exists')
             exist_email = User.objects.get(email=decoded_data['email'])
             exist_username = User.objects.get(username=decoded_data['email'])
             return JsonResponse('user already exist', status=400, safe=False)
         
-        except Exception as e:
-            print(e)
-            print('flag on create user')
+        except:
+
             # make token and set it in cookie, return some response
             new_user = User.objects.create_user(
                 username=decoded_data['username'],
                 email=decoded_data['email'],
                 password=decoded_data['password']
             )
-            print('cookie')
             res = JsonResponse(f"{new_user.pk}")
             res.set_cookie(
                 key='utoken',
