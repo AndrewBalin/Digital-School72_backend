@@ -160,7 +160,7 @@ def register_final_verify(request, token):
 
         except Exception as e:
             print(e)
-            return JsonResponse('oops, an occured error', status=500, safe=False)
+            return JsonResponse(f'oops, an occured error {e}', status=500, safe=False)
 
 @login_jwt_required
 def get_user_profile(request, id):  # TODO: проверка на права доступа (может ли пользователь выполнить действие)
