@@ -15,4 +15,5 @@ urlpatterns = [
     path('get_school/<int:id>', views.get_school),
     path('create_school', views.create_shcool),
     path('get_city_list', views.get_cities),
+    path('test', views.test_make_city_school),
 ]

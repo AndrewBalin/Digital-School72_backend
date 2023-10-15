@@ -312,4 +312,9 @@ def check_username_or_email(request):
                 return JsonResponse("user detected with this username", safe=False)
             except:
                 return JsonResponse("no one user detected with this username", safe=False, status=404)
-            
+
+def test_make_city_school(request):
+    if request.method == "GET":
+        new_city = City.objects.create(name="тюмень")
+        new_school = School.objects.create(name="Digital School 72", city=new_city)
+        return JsonResponse('succ', safe=False)
