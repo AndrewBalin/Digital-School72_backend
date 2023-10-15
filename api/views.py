@@ -315,5 +315,5 @@ def check_username_or_email(request):
 def test_make_city_school(request):
     if request.method == "GET":
         new_city = City.objects.create(name="тюмень")
-        new_school = School.objects.create(name="Digital School 72", city=new_city, city_name=new_city.name)
+        new_school = School.objects.create(name="Digital School 72", city_name=new_city.name)
         return JsonResponse('succ', safe=False)
