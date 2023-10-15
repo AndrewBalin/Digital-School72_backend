@@ -138,7 +138,10 @@ def register_final_verify(request, token):
             new_user = User.objects.create_user(
                 username=decoded_data['username'],
                 email=decoded_data['email'],
-                password=decoded_data['password']
+                password=decoded_data['password'],
+                surname='',
+                patronymic='',
+                role='0'
             )
             res = JsonResponse(f"{new_user.pk}")
             res.set_cookie(
