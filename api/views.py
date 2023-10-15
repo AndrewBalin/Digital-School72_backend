@@ -125,7 +125,7 @@ def register_send_mail(request):
 def register_final_verify(request, token):
     if request.method == 'GET':
         JWT_LOGIN_DT = get_jwt_expiry_date()
-        decrypted_token = fernet_msg_decode(token)
+        decrypted_token = fernet_msg_decode(bytes(token, encoding="UTF8"))
         decoded_data = jwt.decode(decrypted_token, SECRET_KEY, algorithms=['HS256'])
         print('flag run')
 
