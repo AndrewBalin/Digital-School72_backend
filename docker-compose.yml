@@ -5,9 +5,9 @@ services:
     container_name: db
     image: postgres:12
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_DB=djdb
-      - POSTGRES_PASSWORD=ndd$5DH%623^&67326^hfd_^&r64*jd44
+      - POSTGRES_USER=${POSTGRES_USER:-root}
+      - POSTGRES_DB=${POSTGRES_DB:-djdb}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ndd$5DH%623^&67326^hfd_^&r64*jd44}
     volumes:
       - pgdata1:/var/lib/postgresql/data
     ports:
